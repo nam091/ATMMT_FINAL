@@ -1,0 +1,4 @@
+<svg width="800px" height="400px" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg"> 
+  <rect x="0" y="0" width="800" height="400" fill="#f3f4f6"/> 
+  <text x="400" y="200" font-family="Arial" font-size="32" text-anchor="middle" fill="#6b7280">Greeting View</text> 
+</svg> 
