@@ -83,6 +83,25 @@ export default function CallbackPage() {
       try {
         console.log("Processing authentication callback with code:", code.substring(0, 10) + "...");
         
+        // Kiểm tra xem backend có đang chạy không
+        try {
+          // Gửi request ping đến backend
+          const pingResponse = await fetch('http://localhost:3001', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (!pingResponse.ok) {
+            throw new Error(`Backend không khả dụng. Status: ${pingResponse.status}`);
+          }
+        } catch (pingError) {
+          console.error('Backend không khả dụng:', pingError);
+          localStorage.setItem(codeId, 'error');
+          throw new Error('Backend API không khả dụng. Vui lòng khởi động backend bằng script start-backend.bat và thử lại.');
+        }
+        
         // Gửi code đến backend để đổi lấy token
         const response = await fetch('http://localhost:3001/api/auth/callback', {
           method: 'POST',
@@ -178,23 +197,25 @@ export default function CallbackPage() {
     };
   }, [searchParams, router]);
   
+  // Sử dụng suppressHydrationWarning để tránh lỗi hydration
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md text-center">
+    <div className="flex min-h-screen flex-col items-center justify-center p-4" suppressHydrationWarning>
+      <div className="w-full max-w-md text-center" suppressHydrationWarning>
         {isProcessing ? (
           <>
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
-            <h2 className="text-xl font-semibold mb-2">Đang xử lý đăng nhập...</h2>
-            <p className="text-muted-foreground">Vui lòng đợi trong giây lát.</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4" suppressHydrationWarning></div>
+            <h2 className="text-xl font-semibold mb-2" suppressHydrationWarning>Đang xử lý đăng nhập...</h2>
+            <p className="text-muted-foreground" suppressHydrationWarning>Vui lòng đợi trong giây lát.</p>
           </>
         ) : error ? (
           <>
-            <div className="bg-destructive/10 p-4 rounded-lg mb-4">
-              <p className="text-destructive font-medium">{error}</p>
+            <div className="bg-destructive/10 p-4 rounded-lg mb-4" suppressHydrationWarning>
+              <p className="text-destructive font-medium" suppressHydrationWarning>{error}</p>
             </div>
             <button 
               onClick={() => router.push('/login')} 
               className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+              suppressHydrationWarning
             >
               Quay lại trang đăng nhập
             </button>

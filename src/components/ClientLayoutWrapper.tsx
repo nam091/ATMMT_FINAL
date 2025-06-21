@@ -3,6 +3,8 @@
 import { ReactNode, useEffect, useState } from "react";
 import { AuthProvider } from "@/lib/auth-context";
 import { usePathname } from "next/navigation";
+import { applyWebComponentsFix } from "@/lib/webcomponents-fix";
+import { preloadScripts } from "@/lib/preload-scripts";
 
 export default function ClientLayoutWrapper({ children }: { children: ReactNode }) {
   const [isClient, setIsClient] = useState(false);
@@ -10,6 +12,14 @@ export default function ClientLayoutWrapper({ children }: { children: ReactNode 
 
   useEffect(() => {
     setIsClient(true);
+    
+    // Áp dụng fix cho webcomponents
+    applyWebComponentsFix();
+    
+    // Tải trước các script cần thiết
+    preloadScripts().catch(error => {
+      console.error('Error preloading scripts:', error);
+    });
   }, []);
 
   // Kiểm tra xem đường dẫn hiện tại có phải là trang login hay không

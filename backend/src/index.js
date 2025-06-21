@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
 const { auth } = require('./middleware/auth');
+const { keycloakConfig } = require('../config/keycloak-config');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -21,10 +22,21 @@ app.use(session({
   cookie: { secure: false } // set to true if using https
 }));
 
+// Initialize Keycloak
+const keycloakInstance = keycloakConfig.initKeycloak();
+app.use(keycloakInstance.middleware());
+
 // Routes
+const authRoutes = require('./routes/auth.routes');
+const userRoutes = require('./routes/user.routes');
+
 app.get('/', (req, res) => {
   res.json({ message: 'Greeting View Backend API is running!' });
 });
+
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 
 // Protected route example
 app.get('/api/protected', auth, (req, res) => {

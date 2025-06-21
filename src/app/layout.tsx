@@ -22,6 +22,23 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Ngăn chặn lỗi khi định nghĩa lại custom element
+              if (typeof window !== 'undefined' && window.customElements) {
+                const originalDefine = window.customElements.define;
+                window.customElements.define = function(name, constructor, options) {
+                  if (customElements.get(name)) {
+                    console.warn(\`Custom element with name '\${name}' has already been defined. Skipping definition.\`);
+                    return;
+                  }
+                  return originalDefine.call(this, name, constructor, options);
+                };
+              }
+            `,
+          }}
+        />
       </head>
       <body className="font-body antialiased" suppressHydrationWarning={true}>
         <ClientLayoutWrapper>
