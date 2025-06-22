@@ -1,0 +1,40 @@
+graph TD
+    subgraph "Người dùng"
+        People[<i class='fa fa-users'></i> People]
+    end
+
+    subgraph "Ứng dụng của bạn (Webapp)"
+        WebApp_Frontend[<i class='fa fa-desktop'></i> Webapp Frontend]
+        WebApp_Backend[<i class='fa fa-server'></i> Webapp Backend]
+    end
+
+    subgraph "Hệ thống Quản lý Truy cập"
+        subgraph "Keycloak"
+            direction LR
+            MFA["MFA <br>(Google, Microsoft, OTP)"]
+            RBAC[RBAC]
+            ABAC[ABAC]
+            GBAC[Group-Based AC]
+            Brokers[Identity Brokers]
+        end
+    end
+    
+    subgraph "Nguồn dữ liệu người dùng"
+       LDAP[<i class='fa fa-database'></i> LDAP (OpenLDAP)]
+    end
+
+    %% Định nghĩa luồng hoạt động
+    People -- "Tương tác" --> WebApp_Frontend
+    WebApp_Frontend -- "1. Chuyển hướng đăng nhập (Redirect)" --> Keycloak
+    Keycloak -- "2. Trả về Token (JWT)" --> WebApp_Frontend
+    WebApp_Frontend -- "3. Gọi API (kèm Token)" --> WebApp_Backend
+    WebApp_Backend -- "4. Xác thực Token" --> Keycloak
+    Keycloak <--> |"Đồng bộ/Truy vấn người dùng"| LDAP
+
+    %% Styling cho đẹp hơn
+    style People fill:#e3f2fd,stroke:#333,stroke-width:2px
+    style WebApp_Frontend fill:#e8f5e9,stroke:#333,stroke-width:2px
+    style WebApp_Backend fill:#e8f5e9,stroke:#333,stroke-width:2px
+    style Keycloak fill:#fff3e0,stroke:#333,stroke-width:2px
+    style LDAP fill:#f3e5f5,stroke:#333,stroke-width:2px
+
