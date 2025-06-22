@@ -4,7 +4,7 @@ const { keycloakConfig } = require('../../config/keycloak-config');
 
 const keycloak = keycloakConfig.getKeycloak();
 
-// Get user profile - protected by Keycloak
+// Route for general user profile, accessible if authenticated (e.g., has 'employee' role or any valid token)
 router.get('/profile', keycloak.protect(), (req, res) => {
   if (req.kauth && req.kauth.grant) {
     const tokenContent = req.kauth.grant.access_token.content;
@@ -17,48 +17,65 @@ router.get('/profile', keycloak.protect(), (req, res) => {
       roles: tokenContent.realm_access?.roles || []
     });
   } else {
-    res.status(403).json({ message: 'Not authenticated' });
+    res.status(403).json({ message: 'Not authenticated or no token information found' });
   }
 });
 
-// Admin-only endpoint
-router.get('/admin-data', keycloak.protect('realm:admin'), (req, res) => {
+// Endpoint for portal administrators
+router.get('/portal-admin-data', keycloak.protect('portal-admin'), (req, res) => {
   res.json({ 
-    message: 'This data is only accessible to admins',
+    message: 'This data is only accessible to Portal Administrators',
     data: { 
       adminStats: {
         totalUsers: 120,
         activeUsers: 85,
-        systemHealth: 'Good'
+        systemHealth: 'Good',
+        siteConfigAccess: true
       }
     }
   });
 });
 
-// Teacher-only endpoint
-router.get('/teacher-data', keycloak.protect('realm:teacher'), (req, res) => {
+// Endpoint for users who can publish news (e.g., Marketing group)
+router.get('/news-publisher-area', keycloak.protect('can-publish-news'), (req, res) => {
   res.json({ 
-    message: 'This data is only accessible to teachers',
+    message: 'Welcome News Publisher! Access to news creation tools granted.',
     data: { 
-      teacherStats: {
-        totalStudents: 45,
-        averageScore: 7.8,
-        completedAssignments: 156
-      }
+      pendingArticles: 5,
+      publishedToday: 2
     }
   });
 });
 
-// Student-only endpoint
-router.get('/student-data', keycloak.protect('realm:student'), (req, res) => {
+// Endpoint for users who can write docs (e.g., Engineering group)
+router.get('/docs-editor-area', keycloak.protect('can-write-docs'), (req, res) => {
   res.json({ 
-    message: 'This data is only accessible to students',
+    message: 'Documentation Area: Access to document editing features.',
     data: { 
-      studentStats: {
-        enrolledCourses: 5,
-        averageGrade: 'B+',
-        assignmentsDue: 3
-      }
+      draftDocuments: 10,
+      recentEdits: ['Guide A', 'Spec B']
+    }
+  });
+});
+
+// Endpoint for users who can view reports (e.g., Finance group)
+router.get('/finance-reports', keycloak.protect('can-view-reports'), (req, res) => {
+  res.json({ 
+    message: 'Finance Reports Dashboard.',
+    data: { 
+      monthlyRevenue: '...',
+      expenseSummary: '...'
+    }
+  });
+});
+
+// Example of a basic employee-accessible route
+router.get('/employee-dashboard', keycloak.protect('employee'), (req, res) => {
+  res.json({
+    message: 'Welcome to the TechCorp Employee Dashboard!',
+    data: {
+      companyAnnouncements: ['New holiday schedule', 'Quarterly meeting reminder'],
+      quickLinks: ['HR Portal', 'IT Support']
     }
   });
 });

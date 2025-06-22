@@ -9,6 +9,7 @@ interface KeycloakUserProfile {
   firstName?: string;
   lastName?: string;
   roles: string[];
+  groups?: string[];
 }
 
 interface KeycloakState {
@@ -18,6 +19,7 @@ interface KeycloakState {
   refreshToken?: string;
   userProfile?: KeycloakUserProfile;
   hasRole: (role: string) => boolean;
+  hasGroup: (group: string) => boolean;
   login: () => void;
   logout: () => void;
   refreshTokenFn: () => Promise<string | null>;
@@ -56,6 +58,7 @@ export function useKeycloak(): KeycloakState {
           setIsAuthenticated(true);
           console.log("useKeycloak - authenticated with profile:", parsedProfile.username);
           console.log("useKeycloak - roles:", parsedProfile.roles);
+          console.log("useKeycloak - groups:", parsedProfile.groups);
         } catch (error) {
           console.error('Error parsing stored profile:', error);
           localStorage.removeItem('kc_token');
@@ -166,6 +169,19 @@ export function useKeycloak(): KeycloakState {
     return hasTheRole;
   };
 
+  const hasGroup = (group: string): boolean => {
+    if (!userProfile || !userProfile.groups) {
+      console.log(`useKeycloak - hasGroup(${group}) = false (no profile or groups)`);
+      return false;
+    }
+    // Keycloak group paths often start with '/', remove it for comparison if necessary
+    const userGroups = userProfile.groups.map(g => g.startsWith('/') ? g.substring(1) : g);
+    const groupToCheck = group.startsWith('/') ? group.substring(1) : group;
+    const hasTheGroup = userGroups.includes(groupToCheck);
+    console.log(`useKeycloak - hasGroup(${groupToCheck}) = ${hasTheGroup}. User groups: ${userGroups.join(', ')}`);
+    return hasTheGroup;
+  };
+
   return {
     isLoading,
     isAuthenticated,
@@ -173,6 +189,7 @@ export function useKeycloak(): KeycloakState {
     refreshToken,
     userProfile,
     hasRole,
+    hasGroup,
     login,
     logout,
     refreshTokenFn

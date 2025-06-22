@@ -6,17 +6,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { UserCog } from 'lucide-react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { useAuth } from '@/lib/auth-context';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation'; // Not strictly needed for this page structure
 
-export default function AdminPage() {
+export default function PortalAdminPage() {
   // State để kiểm tra nếu component đã mounted
   const [mounted, setMounted] = useState(false);
+  const { userProfile } = useAuth();
   
   useEffect(() => {
     setMounted(true);
-    console.log("AdminPage mounted");
+    console.log("PortalAdminPage mounted");
     
-    // Debug: Kiểm tra token trong localStorage
+    // Debug: Kiểm tra token trong localStorage (optional, can be removed if not needed)
     const token = localStorage.getItem('kc_token');
     const profile = localStorage.getItem('kc_profile');
     console.log("Token exists:", !!token);
@@ -41,23 +42,33 @@ export default function AdminPage() {
   }
   
   return (
-    <ProtectedRoute requiredRole="admin">
+    <ProtectedRoute requiredRole="portal-admin">
       <div className="flex min-h-screen flex-col">
         <AppHeader />
         <main className="flex flex-1 flex-col items-center justify-center p-6">
           <Card className="w-full max-w-2xl text-center shadow-xl">
             <CardHeader>
               <UserCog className="mx-auto h-16 w-16 text-primary mb-4" />
-              <CardTitle className="text-4xl font-headline text-primary">Xin chào Admin!</CardTitle>
+              <CardTitle className="text-4xl font-headline text-primary">Trang Quản Trị Portal</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-lg text-muted-foreground">
-                Đây là trang quản trị của bạn. Bạn có toàn quyền kiểm soát hệ thống.
+                Chào mừng Portal Admin! Tại đây bạn có thể quản lý các khía cạnh của cổng thông tin TechCorp.
               </p>
+              {userProfile && userProfile.roles && userProfile.roles.length > 0 && (
+                <div className="mt-4 text-sm text-muted-foreground">
+                  <p className="font-semibold">Các quyền của bạn:</p>
+                  <ul className="list-disc list-inside ml-4">
+                    {userProfile.roles.map(role => (
+                      <li key={role}>{role}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </CardContent>
           </Card>
         </main>
       </div>
     </ProtectedRoute>
   );
-}
+} 

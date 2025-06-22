@@ -28,7 +28,8 @@ router.get('/userinfo', keycloak.protect(), (req, res) => {
       email: tokenContent.email,
       firstName: tokenContent.given_name,
       lastName: tokenContent.family_name,
-      roles: tokenContent.realm_access?.roles || []
+      roles: tokenContent.realm_access?.roles || [],
+      groups: tokenContent.groups || []
     };
     res.json(userInfo);
   } else {
@@ -102,8 +103,9 @@ router.post('/callback', async (req, res) => {
         console.log(`User info received: ${userInfoResponse.status}`);
         console.log('User info data:', JSON.stringify(userInfoResponse.data));
         
-        // Giải mã token để lấy thông tin vai trò
+        // Giải mã token để lấy thông tin vai trò và nhóm
         let roles = [];
+        let groups = [];
         try {
           // Lấy phần payload của token (phần thứ 2)
           const tokenParts = access_token.split('.');
@@ -112,12 +114,15 @@ router.post('/callback', async (req, res) => {
             console.log('Token payload:', JSON.stringify({
               sub: payload.sub,
               preferred_username: payload.preferred_username,
-              realm_access: payload.realm_access
+              realm_access: payload.realm_access,
+              groups: payload.groups
             }));
             
             // Lấy vai trò từ token
             roles = payload.realm_access?.roles || [];
+            groups = payload.groups || [];
             console.log(`Extracted roles from token: ${roles.join(', ')}`);
+            console.log(`Extracted groups from token: ${groups.join(', ')}`);
           }
         } catch (error) {
           console.error('Error decoding token payload:', error);
@@ -130,7 +135,8 @@ router.post('/callback', async (req, res) => {
           email: userInfoResponse.data.email,
           firstName: userInfoResponse.data.given_name,
           lastName: userInfoResponse.data.family_name,
-          roles: roles
+          roles: roles,
+          groups: groups
         };
         
         // Đảm bảo có vai trò mặc định
@@ -179,7 +185,8 @@ router.post('/callback', async (req, res) => {
               email: payload.email,
               firstName: payload.given_name,
               lastName: payload.family_name,
-              roles: roles
+              roles: roles,
+              groups: payload.groups || []
             };
             
             // Đảm bảo có vai trò mặc định
@@ -214,10 +221,11 @@ router.post('/callback', async (req, res) => {
           id: 'unknown',
           username: 'user',
           email: '',
-          roles: ['user']
+          roles: ['user'],
+          groups: []
         };
         
-        console.log('Using default profile with role: user');
+        console.log('Using default profile with role: user and no groups');
         
         return res.json({
           access_token,
@@ -270,8 +278,22 @@ router.get('/userinfo', async (req, res) => {
         email: userInfoResponse.data.email,
         firstName: userInfoResponse.data.given_name,
         lastName: userInfoResponse.data.family_name,
-        roles: userInfoResponse.data.realm_access?.roles || []
+        roles: userInfoResponse.data.realm_access?.roles || [],
+        groups: userInfoResponse.data.groups || []
       };
+      
+      // If groups are not in userInfoResponse, try to parse from the provided token
+      if (userProfile.groups.length === 0 && token) {
+        try {
+          const tokenParts = token.split('.');
+          if (tokenParts.length === 3) {
+            const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString());
+            userProfile.groups = payload.groups || [];
+          }
+        } catch (e) {
+          console.error("Error parsing token for groups in second /userinfo:", e);
+        }
+      }
       
       return res.json(userProfile);
       

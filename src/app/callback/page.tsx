@@ -158,7 +158,7 @@ export default function CallbackPage() {
     
     // Hàm chuyển hướng dựa trên vai trò
     function redirectBasedOnRole(profile: any) {
-      console.log("CallbackPage - redirectBasedOnRole:", profile?.roles);
+      console.log("CallbackPage - redirectBasedOnRole: Profile received:", JSON.stringify(profile));
       
       // Đánh dấu đã xử lý để tránh xử lý lại
       hasProcessedRef.current = true;
@@ -166,21 +166,34 @@ export default function CallbackPage() {
       // Xác định URL đích dựa trên vai trò
       let targetUrl = '/login';
       
-      if (!profile || !profile.roles || profile.roles.length === 0) {
-        console.log("No roles found in profile, redirecting to login");
+      if (!profile || (!profile.roles && !profile.groups)) {
+        console.log("No roles or groups found in profile, redirecting to login");
         window.location.replace('/login');
         return;
       }
       
-      if (profile.roles.includes('admin')) {
+      const roles = (profile.roles || []) as string[];
+      const groups = (profile.groups || []).map((g: string) => g.startsWith('/') ? g.substring(1) : g) as string[];
+
+      console.log("CallbackPage - redirectBasedOnRole: Effective Roles:", roles);
+      console.log("CallbackPage - redirectBasedOnRole: Effective Groups:", groups);
+
+      if (roles.includes('portal-admin')) {
+        targetUrl = '/portal/admin';
+      } else if (roles.includes('admin')) { // Giữ lại vai trò admin cũ nếu vẫn tồn tại
         targetUrl = '/admin';
-      } else if (profile.roles.includes('teacher')) {
-        targetUrl = '/teacher';
-      } else if (profile.roles.includes('student')) {
-        targetUrl = '/student';
-      } else if (profile.roles.includes('user')) {
-        // Nếu chỉ có vai trò user, chuyển hướng đến trang student
-        targetUrl = '/student';
+      } else if (groups.includes('Marketing')) {
+        targetUrl = '/portal/marketing';
+      } else if (groups.includes('Engineering')) {
+        targetUrl = '/portal/engineering';
+      } else if (groups.includes('Finance')) {
+        targetUrl = '/portal/finance';
+      } else if (groups.includes('Partners')) {
+        targetUrl = '/portal/partners';
+      } else if (roles.includes('employee')) {
+        targetUrl = '/portal/dashboard';
+      } else if (roles.includes('user')) { // Catch-all for basic users without other specific roles/groups
+        targetUrl = '/portal/dashboard';
       }
       
       console.log(`Redirecting to ${targetUrl}`);

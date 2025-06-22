@@ -1,105 +1,86 @@
-# Environment Setup Guide
+# Hướng dẫn Cài đặt Biến Môi trường
 
-This document explains how to set up environment variables for the Greeting-View application in different development and deployment scenarios.
+Tài liệu này giải thích cách thiết lập các biến môi trường (environment variables) cho ứng dụng Greeting-View trong các kịch bản phát triển (development) và triển khai (deployment) khác nhau.
 
-## Environment Files Overview
+## Tổng quan về các File Môi trường
 
-The project uses three main environment files:
+Dự án sử dụng ba file môi trường chính:
 
-1. **Frontend Environment** - `.env` (copied from `.env.example`) in the project root  
-   Contains configuration for the Next.js frontend.
+1.  **Môi trường Frontend** - `.env` (sao chép từ `.env.example`) trong thư mục gốc của dự án.  
+    Chứa cấu hình cho frontend Next.js.
 
-2. **Backend Environment** - `.env` (copied from `.env.example`) in the `backend/` directory  
-   Contains configuration for the Express backend.
+2.  **Môi trường Backend** - `.env` (sao chép từ `.env.example`) trong thư mục `backend/`.  
+    Chứa cấu hình cho backend Express.
 
-3. **Docker Environment** - `.env` (copied from `.env.docker`) in the project root  
-   Contains configuration for the entire Docker Compose stack.
+3.  **Môi trường Docker** - `.env` (sao chép từ `.env.docker`) trong thư mục gốc của dự án.  
+    Chứa cấu hình cho toàn bộ Docker Compose stack.
 
-## Setting Up Local Development
+## Thiết lập cho Phát triển Local (Local Development)
 
-### Frontend Setup (Next.js)
+### Cài đặt Frontend (Next.js)
 
-1. Copy the example file:
-   ```bash
-   cp .env.example .env
-   ```
+1.  Sao chép file ví dụ:
+    ```bash
+    cp .env.example .env
+    ```
 
-2. Update the variables as needed:
-   - `NEXT_PUBLIC_API_URL`: URL of your backend API (default: http://localhost:3001)
-   - `NEXT_PUBLIC_KEYCLOAK_URL`: URL of your Keycloak server (default: http://localhost:8080)
-   - `NEXT_PUBLIC_KEYCLOAK_REALM`: Your Keycloak realm name (default: greeting-view)
-   - `NEXT_PUBLIC_KEYCLOAK_CLIENT_ID`: Frontend client ID (default: greeting-view-frontend)
-   - Additional settings can be customized as needed
+2.  Cập nhật các biến nếu cần:
+    - `NEXT_PUBLIC_API_URL`: URL của backend API của bạn (mặc định: http://localhost:3001)
+    - `NEXT_PUBLIC_KEYCLOAK_URL`: URL của Keycloak server của bạn (mặc định: http://localhost:8080)
+    - `NEXT_PUBLIC_KEYCLOAK_REALM`: Tên Keycloak realm của bạn (mặc định: greeting-view)
+    - `NEXT_PUBLIC_KEYCLOAK_CLIENT_ID`: Frontend client ID (mặc định: greeting-view-frontend)
+    - Các cài đặt bổ sung có thể được tùy chỉnh nếu cần.
 
-3. Start the frontend:
-   ```bash
-   npm run dev
-   ```
+3.  Khởi động frontend:
+    ```bash
+    npm run dev
+    ```
 
-### Backend Setup (Express)
+### Cài đặt Backend (Express)
 
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
+1.  Di chuyển đến thư mục backend:
+    ```bash
+    cd backend
+    ```
 
-2. Copy the example file:
-   ```bash
-   cp .env.example .env
-   ```
+2.  Sao chép file ví dụ:
+    ```bash
+    cp .env.example .env
+    ```
 
-3. Update the variables as needed:
-   - `KEYCLOAK_URL`: URL of your Keycloak server
-   - `KEYCLOAK_REALM`: Your Keycloak realm name
-   - `KEYCLOAK_CLIENT_ID`: Backend client ID
-   - `KEYCLOAK_SECRET`: Client secret from Keycloak
-   - `SESSION_SECRET`: Secret for session encryption
+3.  Cập nhật các biến nếu cần:
+    - `KEYCLOAK_URL`: URL của Keycloak server của bạn
+    - `KEYCLOAK_REALM`: Tên Keycloak realm của bạn
+    - `KEYCLOAK_CLIENT_ID`: Backend client ID
+    - `KEYCLOAK_SECRET`: Client secret từ Keycloak
+    - `SESSION_SECRET`: Secret cho mã hóa session
 
-4. Start the backend:
-   ```bash
-   npm run dev
-   ```
+4.  Khởi động backend:
+    ```bash
+    npm run dev
+    ```
 
-## Docker Compose Setup
+## Môi trường Production
 
-For running the complete stack with Docker Compose:
+Đối với việc triển khai production, các file môi trường tương tự nên được thiết lập với:
 
-1. Copy the docker environment file:
-   ```bash
-   cp .env.docker .env
-   ```
+- Các URL production thay vì `localhost`
+- Các URL HTTPS thay vì HTTP
+- Các secrets phù hợp cho production
+- Các cài đặt bảo mật bổ sung
 
-2. Update variables as needed, particularly:
-   - `KEYCLOAK_ADMIN_PASSWORD`: Secure password for Keycloak admin
-   - `POSTGRES_PASSWORD`: Secure password for PostgreSQL
-   - Any client secrets or other security-related values
+**Không bao giờ commit các file `.env` thực tế chứa secrets lên version control.** Các file `.env.example` và `.env.docker` chỉ dùng làm mẫu (templates).
 
-3. Start the Docker Compose stack:
-   ```bash
-   docker-compose up
-   ```
+## Cài đặt Keycloak Realm
 
-## Production Environment
+Sau khi khởi động Keycloak, bạn sẽ cần thiết lập realm:
 
-For production deployment, similar environment files should be set up with:
+1.  Truy cập Keycloak tại http://localhost:8080
+2.  Tạo một realm mới tên là "greeting-view"
+3.  Tạo hai clients:
+    -   `greeting-view-frontend` (public)
+    -   `greeting-view-backend` (confidential, với service account)
+4.  Tạo các roles: admin, teacher, student (Hoặc các roles mới theo kế hoạch của bạn như `employee`, `portal-admin`, etc.)
+5.  Cấu hình client secrets trong các file `.env` của bạn.
 
-- Production URLs instead of localhost
-- HTTPS URLs instead of HTTP
-- Proper secrets for production
-- Additional security settings
-
-Never commit your actual `.env` files containing secrets to version control. The `.env.example` and `.env.docker` files are meant to be templates only.
-
-## Keycloak Realm Setup
-
-After starting Keycloak, you'll need to set up the realm:
-
-1. Access Keycloak at http://localhost:8080
-2. Create a new realm named "greeting-view"
-3. Create two clients:
-   - `greeting-view-frontend` (public)
-   - `greeting-view-backend` (confidential, with service account)
-4. Create roles: admin, teacher, student
-5. Configure the client secrets in your `.env` files
-
-Refer to the [Keycloak documentation](https://www.keycloak.org/documentation) for detailed setup instructions. 
+Tham khảo [tài liệu Keycloak](https://www.keycloak.org/documentation) (Keycloak documentation) để biết hướng dẫn cài đặt chi tiết. (Hoặc tốt hơn, tham khảo file `keycloak-setup.md` trong thư mục `docs` của dự án này). 
