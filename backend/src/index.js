@@ -55,5 +55,5 @@ app.get('/health', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Keycloak URL: ${process.env.KEYCLOAK_URL || 'http://localhost:8080'}`);
-  console.log(`Keycloak Realm: ${process.env.KEYCLOAK_REALM || 'greeting-view'}`);
+  console.log(`Keycloak Realm: ${process.env.KEYCLOAK_REALM || 'greeting-view-portal'}`);
 }); 

@@ -10,7 +10,7 @@ const keycloak = keycloakConfig.getKeycloak();
 router.get('/config', (req, res) => {
   const clientConfig = {
     url: process.env.KEYCLOAK_URL || 'http://localhost:8080',
-    realm: process.env.KEYCLOAK_REALM || 'greeting-view',
+    realm: process.env.KEYCLOAK_REALM || 'greeting-view-portal',
     clientId: 'greeting-view-frontend'
   };
   res.json(clientConfig);
@@ -48,7 +48,7 @@ router.post('/callback', async (req, res) => {
     
     // Sử dụng client ID cho frontend (public client)
     const keycloakUrl = process.env.KEYCLOAK_URL || 'http://localhost:8080';
-    const realm = process.env.KEYCLOAK_REALM || 'greeting-view';
+    const realm = process.env.KEYCLOAK_REALM || 'greeting-view-portal';
     const clientId = 'greeting-view-frontend'; // Client ID cho frontend
     
     console.log(`Processing callback with code ${code.substring(0, 10)}... for redirect URI ${redirectUri}`);
@@ -260,7 +260,7 @@ router.get('/userinfo', async (req, res) => {
     
     const token = authHeader.split(' ')[1];
     const keycloakUrl = process.env.KEYCLOAK_URL || 'http://localhost:8080';
-    const realm = process.env.KEYCLOAK_REALM || 'greeting-view';
+    const realm = process.env.KEYCLOAK_REALM || 'greeting-view-portal';
     
     try {
       const userInfoResponse = await axios.get(
@@ -316,7 +316,7 @@ router.post('/logout', async (req, res) => {
     const { refreshToken } = req.body;
     
     const keycloakUrl = process.env.KEYCLOAK_URL || 'http://localhost:8080';
-    const realm = process.env.KEYCLOAK_REALM || 'greeting-view';
+    const realm = process.env.KEYCLOAK_REALM || 'greeting-view-portal';
     const clientId = 'greeting-view-frontend';
     
     console.log('Processing logout request');

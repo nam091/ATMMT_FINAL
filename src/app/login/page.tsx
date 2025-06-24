@@ -41,7 +41,7 @@ export default function LoginPage() {
     
     // Redirect to Keycloak
     const keycloakUrl = 'http://localhost:8080';
-    const realm = 'greeting-view';
+    const realm = 'greeting-view-portal';
     const clientId = 'greeting-view-frontend';
     const redirectUri = encodeURIComponent(`${window.location.origin}/callback`);
     

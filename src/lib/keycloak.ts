@@ -96,7 +96,7 @@ export function useKeycloak(): KeycloakState {
     
     // Redirect to Keycloak login
     const keycloakUrl = 'http://localhost:8080';
-    const realm = 'greeting-view';
+    const realm = 'greeting-view-portal';
     const clientId = 'greeting-view-frontend';
     const redirectUri = encodeURIComponent(window.location.origin);
     
@@ -143,7 +143,7 @@ export function useKeycloak(): KeycloakState {
     
     // Chuyển hướng đến endpoint logout của Keycloak
     const keycloakUrl = 'http://localhost:8080';
-    const realm = 'greeting-view';
+    const realm = 'greeting-view-portal';
     const clientId = 'greeting-view-frontend';
     const redirectUri = encodeURIComponent(`${window.location.origin}/login`);
     

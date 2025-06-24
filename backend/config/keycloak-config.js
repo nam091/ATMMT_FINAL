@@ -12,14 +12,14 @@ function initKeycloak() {
   console.log("Initializing Keycloak...");
   
   const keycloakConfig = {
-    realm: process.env.KEYCLOAK_REALM || 'greeting-view',
+    realm: process.env.KEYCLOAK_REALM || 'greeting-view-portal',
     'auth-server-url': process.env.KEYCLOAK_URL || 'http://localhost:8080',
     'ssl-required': 'external',
     resource: process.env.KEYCLOAK_CLIENT_ID || 'greeting-view-backend',
     'confidential-port': 0,
     'bearer-only': true,
     credentials: {
-      secret: process.env.KEYCLOAK_SECRET || 'your-client-secret'
+      secret: process.env.KEYCLOAK_SECRET
     }
   };
 
